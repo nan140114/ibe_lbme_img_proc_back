@@ -1,0 +1,30 @@
+name: Publish Docker image
+
+on:
+  push:
+    branches:
+      - feature/*
+      - main
+
+jobs:
+
+  build_and_publish:
+    environment: development
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        folders_list: ["image_api", "image_processing"]
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
+    - name: Build and publish docker images
+      run: |
+        echo ${{ secrets.CI_CD_SA_KEY }} | base64 -d > keyfile.json
+        cat keyfile.json | docker login -u _json_key --password-stdin https://us.gcr.io
+        VERSION=$(cat VERSION)
+        cd ${{ matrix.folders_list }}
+        docker build -t ${{ matrix.folders_list }} .
+        docker tag  ${{ matrix.folders_list }} us.gcr.io/sandboxgdgomez/$PACKAGE_NAME:$VERSION
+        docker push us.gcr.io/sandboxgdgomez/$PACKAGE_NAME:$VERSION
