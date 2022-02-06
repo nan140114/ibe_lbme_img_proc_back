@@ -1,13 +1,14 @@
 
 from PIL import Image
 from pathlib import Path
+import tempfile
 
 # create the file in tmp folder
 def create_temp_file(file_content):
-    file_location = f"/tmp/epa.png"
-    with open(file_location, "wb+") as file_object:
+    tmp_file_name = tempfile.NamedTemporaryFile().name
+    with open(tmp_file_name, "wb+") as file_object:
         file_object.write(file_content)
-    return file_location
+    return tmp_file_name
 
 def get_image_attr(file_location):
     image = Image.open(file_location)
