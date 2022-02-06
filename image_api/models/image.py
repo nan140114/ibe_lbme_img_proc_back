@@ -3,6 +3,7 @@ from typing import Optional, Any
 from pydantic import BaseModel
 from google.cloud import datastore
 from utils.datastore import datastore_client
+from google.cloud import storage
 from config import constants
 import tempfile
 
@@ -34,7 +35,14 @@ class Image(BaseModel):
                 "public"   : self.public,
         })
         client.put(image)
+    
+    def save_image_to_private_bucket(self):
+        client         = storage.Client(project=os.environ["PROJECT_ID"])
+        private_bucket = client.get_bucket(constants.PRIVATE_BUCKET_NAME)
+        new_file = private_bucket.blob(f'{self.filename}')
+        new_file.upload_from_filename(filename=self.local_path)
 
     def save(self):
         self.create_local_file()
+        self.save_image_to_private_bucket()
         self.save_on_db()
