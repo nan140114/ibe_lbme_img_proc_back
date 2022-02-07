@@ -27,22 +27,26 @@ class Image(BaseModel):
         client = datastore_client()
         image = datastore.Entity(client.key("Images"))
         image.update({
-                "filename" : self.filename,
-                "bucket"   : self.bucket,
-                "width"    : self.width,
-                "heigth"   : self.heigth,
-                "is_valid" : self.is_valid,
-                "public"   : self.public,
+            "filename" : self.filename,
+            "bucket"   : self.bucket,
+            "width"    : self.width,
+            "heigth"   : self.heigth,
+            "is_valid" : self.is_valid,
+            "public"   : self.public,
         })
         client.put(image)
+        return image.key.id
     
-    def save_image_to_private_bucket(self):
+    def save_image_to_private_bucket(self, image_id):
+        metadata = { "image_id" : image_id }
         client         = storage.Client(project=os.environ["PROJECT_ID"])
         private_bucket = client.get_bucket(constants.PRIVATE_BUCKET_NAME)
-        new_file = private_bucket.blob(f'{self.filename}')
-        new_file.upload_from_filename(filename=self.local_path)
+        new_image = private_bucket.blob(f'{self.filename}')
+        new_image.metadata = metadata
+        print(self.filename)
+        new_image.upload_from_filename(filename=self.local_path)
 
     def save(self):
         self.create_local_file()
-        self.save_image_to_private_bucket()
-        self.save_on_db()
+        image_id = self.save_on_db()
+        self.save_image_to_private_bucket(image_id)
