@@ -26,5 +26,5 @@ jobs:
         cd ${{ matrix.folders_list }}
         VERSION=$(cat ./VERSION)
         docker build -t ${{ matrix.folders_list }} .
-        docker tag  ${{ matrix.folders_list }} us.gcr.io/sandboxgdgomez/${{ matrix.folders_list }}:$VERSION
-        docker push us.gcr.io/sandboxgdgomez/${{ matrix.folders_list }}:$VERSION
+        docker tag  ${{ matrix.folders_list }} us.gcr.io/dev-ibe-lbme-img-proc/${{ matrix.folders_list }}:$VERSION
+        docker push us.gcr.io/dev-ibe-lbme-img-proc/${{ matrix.folders_list }}:$VERSION
