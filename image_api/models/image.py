@@ -12,7 +12,7 @@ class Image(BaseModel):
     bucket     : Optional[str]  = constants.PRIVATE_BUCKET_NAME
     width      : Optional[int]  = 0
     heigth     : Optional[int]  = 0
-    is_valid   : Optional[bool] = False
+    valid      : Optional[bool] = False
     public     : Optional[bool] = False
     local_path : Optional[str]
     content    : Any
@@ -31,7 +31,7 @@ class Image(BaseModel):
             "bucket"   : self.bucket,
             "width"    : self.width,
             "heigth"   : self.heigth,
-            "is_valid" : self.is_valid,
+            "valid"    : self.valid,
             "public"   : self.public,
         })
         client.put(image)

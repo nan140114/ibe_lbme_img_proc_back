@@ -9,7 +9,7 @@ from config.constants import CONDITION_TO_VALIDATE, SUPPORTED_WIDTH, SUPPORTED_S
 def update_image(image_id, width, heigth, size, is_valid):
     client = datastore.Client(project=os.environ["PROJECT_ID"])
     with client.transaction():
-        key = client.key('Images', image_id)
+        key = client.key('Images', int(image_id))
         image = client.get(key)
         # iterate through the entity to take over all existing property values
         for prop in image:
