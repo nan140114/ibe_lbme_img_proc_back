@@ -2,20 +2,29 @@ import os
 from typing import Optional, Any
 from pydantic import BaseModel
 from google.cloud import datastore
-from utils.datastore import datastore_client
+from utils.datastore import datastore_client, clean_queries
 from google.cloud import storage
 from config import constants
 import tempfile
+import json
 
 class Image(BaseModel):
-    filename   : Optional[str]
+    filename   : Optional[str]  = ""
     bucket     : Optional[str]  = constants.PRIVATE_BUCKET_NAME
     width      : Optional[int]  = 0
     heigth     : Optional[int]  = 0
     valid      : Optional[bool] = False
     public     : Optional[bool] = False
-    local_path : Optional[str]
+    local_path : Optional[str]  = ""
     content    : Any
+
+    @staticmethod
+    def get_all():
+        client = datastore_client()
+        all_images = client.query(kind="Images")
+        all_images = map( clean_queries , list(all_images.fetch()) )
+        return list(all_images)
+
 
     def create_local_file(self):
         self.local_path = tempfile.NamedTemporaryFile().name
@@ -25,7 +34,7 @@ class Image(BaseModel):
 
     def save_on_db(self):
         client = datastore_client()
-        image = datastore.Entity(client.key("Images"))
+        image = datastore.Entity(client.key("Images"), exclude_from_indexes=("filename", "bucket", "width", "valid", "public"))
         image.update({
             "filename" : self.filename,
             "bucket"   : self.bucket,

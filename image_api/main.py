@@ -2,38 +2,33 @@ from fastapi import FastAPI, File, Form, UploadFile
 from utils.files import create_temp_file, get_image_attr
 from utils.storage import save_image_to_private
 from models.image import Image
+import json
 
 app = FastAPI()
 
 @app.get("/images")
 def get_all_images():
-    print("get /images")
-    return {
-        "from": "get_images",
-        "status": 200
-    }
+    all_images = Image.get_all()
+    return all_images
 
 @app.post("/images")
-def new_image(uploaded_file: UploadFile):
+def new_image(uploaded_file: UploadFile, user_id: int):
     print("post /images")
+    print(user_id)
     image_data = { "content" : uploaded_file.file.read() }
-    img = Image(**image_data)
-    img.save()
+    image = Image(**image_data)
+    image.save()
     return {
-        "from": "post_image",
         "status": 200
     }
 
 @app.post("/images/{image_id}")
-def new_image(uploaded_file: UploadFile):
-    return {
-        "from": "post_arg_image",
-        "status": 200
-    }
+def edit_image(image_id, image: Image):
+    print(image)
+    print(image_id)
 
 @app.get("/images/{image_id}")
 def new_image(image_id):
     return {
-        "from": "get_arg_image",
         "status": 200
     }
