@@ -2,7 +2,6 @@
 from PIL import Image
 from fastapi import FastAPI, File, Form, UploadFile, Request
 from validators.resolution_and_size import validate_size_and_resolution
-from utils.request import process_body
 
 app = FastAPI()
 
