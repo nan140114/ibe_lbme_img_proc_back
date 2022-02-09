@@ -1,9 +1,10 @@
-from fastapi import FastAPI, File, Form, UploadFile
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from utils.files import create_temp_file, get_image_attr
 from utils.storage import save_image_to_private
 from models.image import Image
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from config.constants import SUPPORTED_MIME_TYPES
 import json
 
 app = FastAPI()
@@ -36,21 +37,22 @@ def new_image(uploaded_file: UploadFile, user_id: int):
         "content" : uploaded_file.file.read(),
         "original_filename": uploaded_file.filename
     }
-    image = Image(**image_data)
-    image.save()
-    return {
-        "code": 200
-    }
+    print(uploaded_file.content_type)
+    if uploaded_file.content_type in SUPPORTED_MIME_TYPES:
+        image = Image(**image_data)
+        image.save()
+        return {
+            "status_code": 200,
+            "details": "The image has been successfully created"
+        }
+    else:
+        raise HTTPException(status_code=404, detail="The file type isn't supported")
+
 
 @app.post("/images/{image_id}/publish")
 def make_image_public(image_id):
     Image.make_public(image_id)
     return {
-        "code": 200
-    }
-
-@app.get("/images/{image_id}")
-def new_image(image_id):
-    return {
-        "code": 200
+        "status_code": 200,
+        "details": "The image has been successfully published"
     }
